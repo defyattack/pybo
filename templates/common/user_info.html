@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load pybo_filter %}
+{% block content %}
+<div class="container my-3">
+    <h2 class="border-bottom py-2">프로필</h2>
+    <div class="row my-3">
+        <div class="col-12"> <!-- 정보영역 -->
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-text">
+                        사용자 ID : {{ member.username }}
+                    </div>
+                    <div class="mt-3">
+                        사용자 이메일 : {{ member.email }}
+                    </div>
+
+                    <div class="mt-3">
+                        가입일 : {{ member.date_joined }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 나의 질문 //-->
+    <div class="row justify-content-between my-3">
+        <div class="col-3">나의 질문 (총 {{ question_list.paginator.count }} 개)</div>
+        
+        <table class="table">
+            <thead>
+            <tr class="thead-dark">
+                <th>번호</th>
+                <th>분류</th>
+                <th>추천</th>
+                <th style="width:50%">제목</th>
+                <th>글쓴이</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if question_list %}
+            {% for question in question_list %}
+            <tr>
+                <td>
+                    <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
+                    {{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}
+                </td>
+                <td>
+                    {{ question.cate.cname }}
+                </td>
+                <td>
+                    {% if question.voter.all.count > 0 %}
+                    <span class="badge badge-warning px-2 py-1">{{ question.voter.all.count }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
+                    {% if question.answer_set.count > 0 %}
+                    <span class="text-danger small ml-2">[{{ question.answer_set.count }}]</span>
+                    {% endif %}
+                </td>
+                <td>{{ question.author.username }}</td>
+                <td>{{ question.create_date }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4">질문이 없습니다.</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>    
+
+        {% include "page_navi.html" with page_class='qpage-link' boardlist=question_list %}
+
+    </div>
+
+    <!-- 나의 답변 //-->
+    <div class="row justify-content-between my-3">
+        <div class="col-3">나의 답변 (총 {{ answer_list.paginator.count }} 개)</div>
+
+        <table class="table">
+            <thead>
+            <tr class="thead-dark">
+                <th>번호</th>
+                <th>추천</th>
+                <th style="width:50%">내용</th>
+                <th>글쓴이</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if answer_list %}
+            {% for answer in answer_list %}
+            <tr>
+                <td>
+                    <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
+                    {{ answer_list.paginator.count|sub:answer_list.start_index|sub:forloop.counter0|add:1 }}
+                </td>
+                <td>
+                    {% if answer.voter.all.count > 0 %}
+                    <span class="badge badge-warning px-2 py-1">{{ answer.voter.all.count }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'pybo:detail' answer.question_id %}">{{ answer.content | slice:":20" }}</a>
+                    {% if answer.content|length > 20 %}
+                    . . . . . .
+                    {% endif %}
+                    {% if answer.comment_set.count > 0 %}
+                    <span class="text-danger small ml-2">[{{ answer.comment_set.count }}]</span>
+                    {% endif %}
+                </td>
+                <td>{{ answer.author.username }}</td>
+                <td>{{ answer.create_date }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4">답변이 없습니다.</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        {% include "page_navi.html" with page_class='apage-link' boardlist=answer_list %}
+
+    </div>
+
+    <!-- 나의 댓글 //-->
+    <div class="row justify-content-between my-3">
+        <div class="col-3">나의 댓글 (총 {{ comment_list.paginator.count }} 개)</div>
+
+        <table class="table">
+            <thead>
+            <tr class="thead-dark">
+                <th>번호</th>
+                <th>질문/답변</th>
+                <th style="width:50%">내용</th>
+                <th>글쓴이</th>
+                <th>작성일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if comment_list %}
+            {% for comment in comment_list %}
+            <tr>
+                <td>
+                    <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
+                    {{ comment_list.paginator.count|sub:comment_list.start_index|sub:forloop.counter0|add:1 }}
+                </td>
+                <td>
+                    {% if comment.question_id %}
+                       질문
+                    {% else %}
+                       답변
+                    {% endif %}
+                </td>
+                <td>
+                    {% if comment.question_id %}
+                        <a href="{% url 'pybo:detail' question_id=comment.question_id %}">
+                    {% else %}
+                        <a href="{% url 'pybo:detail' question_id=comment.answer.question_id %}">
+                    {% endif %}
+                    {{ comment.content | slice:":20" }}</a>
+                    {% if comment.content|length > 20 %}
+                    . . . . . .
+                    {% endif %}
+                </td>
+                <td>{{ comment.author.username }}</td>
+                <td>{{ comment.create_date }}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="4">댓글이 없습니다.</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+
+        {% include "page_navi.html" with page_class='cpage-link' boardlist=comment_list %}
+
+    </div>
+
+</div>
+<form id="searchForm" method="get" action="{% url 'common:user_info' %}">
+    <input type="hidden" id="qpage" name="qpage" value="{{ qpage }}">
+    <input type="hidden" id="apage" name="apage" value="{{ apage }}">
+    <input type="hidden" id="cpage" name="cpage" value="{{ cpage }}">
+</form>
+{% endblock %}
+
+{% block script %}
+<script language="JavaScript1.2">
+$(document).ready(function(){
+
+    $(".qpage-link").on('click', function() {
+        $("#qpage").val($(this).data("page"));
+        $("#searchForm").submit();
+    });
+
+    $(".apage-link").on('click', function() {
+        $("#apage").val($(this).data("page"));
+        $("#searchForm").submit();
+    });
+
+    $(".cpage-link").on('click', function() {
+        $("#cpage").val($(this).data("page"));
+        $("#searchForm").submit();
+    });
+
+});
+
+</script>
+{% endblock %}

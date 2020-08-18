@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<title>파이보2</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <title>안녕 하이보~</title>
+</head>
+<body>
+{% include "navbar.html" %}
+
+{% block content %}
+{% endblock %}
+
+<script src="{% static 'jquery-3.5.1.min.js' %}"></script>
+<script src="{% static 'bootstrap.min.js' %}"></script>
+{% block script %}
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <form method="post" class="post-form">
+        {% csrf_token %}
+        {% include "form_errors.html" %}
+        <div class="form-group">
+            <label for="content">답변내용</label>
+            <textarea name="content" id="content" class="form-control"
+                      rows="10">{{ form.content.value|default_if_none:'' }}</textarea>
+        </div>
+        <input type="submit" value="답변수정저장" class="btn btn-primary">
+        <a href="{% url 'pybo:detail' answer.question_id %}" class="btn btn-primary">돌아가기</a>
+    </form>
+</div>
+{% endblock %}

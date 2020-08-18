@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <div class="row">
+        <div class="col-4">
+            <h4>비밀번호 분실 요청</h4>
+        </div>
+        <div class="col-8 text-right">
+            <span>임의로 생성된 신규 비밀번호를 가입하신 이메일로 보내드립니다.</span>
+        </div>
+    </div>
+    {% if messages %}
+    <div class="alert alert-danger my-3" role="alert">
+        {% for msg in messages %}
+        <strong>{{ msg.tags }}</strong>
+        <ul><li>{{ msg.message }}</li></ul>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <form method="post" class="post-form">
+        {% csrf_token %}
+        {% include "form_errors.html" %}
+        <div class="form-group">
+            <label for="username">사용자ID</label>
+            <input type="text" class="form-control" name="username" id="username"
+                   value="{{ form.username.value|default_if_none:'' }}">
+        </div>
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="text" class="form-control" name="email" id="email"
+                   value="{{ form.email.value|default_if_none:'' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">확인</button>
+    </form>
+</div>
+{% endblock %}
